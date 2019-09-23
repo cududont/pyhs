@@ -18,7 +18,7 @@ m_iGlowIndex = (0xA40C)
 dwLocalPlayer = (0xCF5A4C)
 
 app = QApplication(sys.argv)
-
+   
 
 try: #hook to csgo
     pym = pymem.Pymem("csgo.exe")
@@ -30,6 +30,7 @@ except:
     exit()
     
 
+fovL = []
 
 def apply(): #save color scheme and toggle key
     global key, cscheme, fov
@@ -40,9 +41,9 @@ def apply(): #save color scheme and toggle key
     pickle.dump(cscheme, open("data//colorscheme.dat", "wb"))
     fov = gui.slider.value()
     pickle.dump(fov, open("data//fov.dat", "wb"))
+    fovL = [fov]
+    print(fovL[0]) 
     
-    
-
 
 class main(QMainWindow): #ui class
     def __init__(self):
@@ -56,6 +57,7 @@ class main(QMainWindow): #ui class
         fovres = pickle.load(open("data//fov.dat", "rb"))
         self.line.setText(tkey)
         self.ls.setCurrentText(colorscheme)
+        self.slider.setValue(fovres)
         
     
     def initUI(self):
@@ -90,6 +92,36 @@ class main(QMainWindow): #ui class
         self.line.move(83, 55)
         self.line.setFont(QFont("Calibri", 10))
 
+        fv = QLabel("FOV Changer", self)
+        fv.move(5, 80)
+        fv.setFont(font)
+
+        self.slider = QSlider(Qt.Horizontal, self)
+        self.slider.setTickInterval(30)
+        self.slider.setTickPosition(2)
+        self.slider.move(15,110)
+        self.slider.setMaximum(150)
+        self.slider.setMinimum(90)
+        self.slider.resize(180,20)
+        self.slider.setSingleStep(0)
+        
+        
+        v = QLabel("90°", self)
+        v.move(15, 120)
+        v.setFont(QFont("Calibri", 8))
+
+        v2 = QLabel("120°", self)
+        v2.move(98, 120)
+        v2.setFont(QFont("Calibri", 8))
+        
+        v3 = QLabel("150°", self)
+        v3.move(180, 120)
+        v3.setFont(QFont("Calibri", 8))
+
+        #trg = QLabel("Triggerbot", self)
+        #trg.move(5, 140)
+        #trg.setFont(font)
+
         self.btn = QPushButton(self)
         self.btn.setText("Apply")
         self.btn.setFont(QFont("Calibri", 10))
@@ -109,8 +141,8 @@ class main(QMainWindow): #ui class
         painter.setPen(QPen(QColor(80, 80, 80), 3))
         
         painter.drawLine(45,16,200,16)
-        
-     
+        painter.drawLine(93,97,200,97)
+        #painter.drawLine(75,156,200,156)
         
 
 gui = main()
@@ -118,15 +150,9 @@ gui.show()
 
 key = pickle.load(open("data//togglekey.dat", "rb"))
 cscheme = pickle.load(open("data//colorscheme.dat", "rb"))
+fov = pickle.load(open("data//fov.dat", "rb"))
 
 
-#color vars 
-ctcolorr = 0
-ctcolorb = 0
-ctcolorg = 0
-tcolorr = 0
-tcolorb = 0
-tcolorg = 0
 
 
 def newthread(): #create a new thread for glowfunc
@@ -134,17 +160,27 @@ def newthread(): #create a new thread for glowfunc
     nt.daemon = True
     nt.start()
 
+def newthread2(): #thread for fov func
+    nt2 = Thread(target=fovfunc)
+    nt2.daemon = True
+    nt2.start()
 
-lp = pym.read_int(dwLocalPlayer + client)
+def fovfunc():
+    from cheats.fov import startfov
+    fovL = [fov]
+    startfov(fovL)
+
+
 
 def glowfunc(): #the glow
     while True:
-        sleep(0.005)
+        sleep(0.001)
         if keyboard.is_pressed(key):
             sleep(0.1)
             while True:
                 try:
                     glow = pym.read_int(dwGlowObjectManager + client)
+                    lp = pym.read_int(dwLocalPlayer + client)
                     lpt = pym.read_int(lp + m_iTeamNum) #local player's team
 
                     if lpt == 2: #t
@@ -218,6 +254,6 @@ def glowfunc(): #the glow
                     break
 
 newthread()
-
+newthread2()
     
 sys.exit(app.exec_())

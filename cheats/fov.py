@@ -11,12 +11,12 @@ m_hActiveWeapon = (0x2EF8)
 dwEntityList = (0x4D07DD4)
 m_iItemDefinitionIndex = (0x2FAA)
 m_iFOV = (0x31E4)
-m_iShotsFired = (0xA380)
 m_bIsScoped = (0x3910)
 
-def startfov(fov):
+def startfov(fovL):
     while True:
         try:
+            fovSET = fovL[0]
             lp = pym.read_int(dwLocalPlayer + client)
             
             wpn = pym.read_int(lp + m_hActiveWeapon)
@@ -25,21 +25,21 @@ def startfov(fov):
             wpnid = pym.read_int(wpnentity + m_iItemDefinitionIndex)
             
             if wpnid == 9 or wpnid == 40:
-                shots = pym.read_int(lp + m_iShotsFired)
                 scpd = pym.read_int(lp + m_bIsScoped)
-                if shots == 1 or scpd == 0:
-                    pym.write_int(lp + m_iFOV, int(fov))
+                if scpd == 0:
+                    pym.write_int(lp + m_iFOV, int(90))
 
             elif wpnid == 11 or wpnid == 38:
                 scpd = pym.read_int(lp + m_bIsScoped)
                 if scpd == 0:
-                    pym.write_int(lp + m_iFOV, int(fov))
+                    pym.write_int(lp + m_iFOV, int(90))
         
             else:
-                pym.write_int(lp + m_iFOV, int(fov))
+                pym.write_int(lp + m_iFOV, int(fovSET))
                 
         except Exception as e:
             print(e)
-            
+
+
 
         
