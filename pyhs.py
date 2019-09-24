@@ -29,8 +29,8 @@ except:
     MessageBox(None, 'CS:GO Was Not Detected', 'pyhs', 48)
     exit()
     
-
-fovL = []
+fov = pickle.load(open("data//fov.dat", "rb"))
+fovL = [fov]
 
 def apply(): #save color scheme and toggle key
     global key, cscheme, fov
@@ -41,7 +41,7 @@ def apply(): #save color scheme and toggle key
     pickle.dump(cscheme, open("data//colorscheme.dat", "wb"))
     fov = gui.slider.value()
     pickle.dump(fov, open("data//fov.dat", "wb"))
-    fovL = [fov]
+    fovL[0] = fov 
     print(fovL[0]) 
     
 
@@ -102,6 +102,8 @@ class main(QMainWindow): #ui class
         self.slider.move(15,110)
         self.slider.setMaximum(150)
         self.slider.setMinimum(90)
+
+
         self.slider.resize(180,20)
         self.slider.setSingleStep(0)
         
@@ -150,9 +152,6 @@ gui.show()
 
 key = pickle.load(open("data//togglekey.dat", "rb"))
 cscheme = pickle.load(open("data//colorscheme.dat", "rb"))
-fov = pickle.load(open("data//fov.dat", "rb"))
-
-
 
 
 def newthread(): #create a new thread for glowfunc
@@ -161,16 +160,9 @@ def newthread(): #create a new thread for glowfunc
     nt.start()
 
 def newthread2(): #thread for fov func
-    nt2 = Thread(target=fovfunc)
-    nt2.daemon = True
-    nt2.start()
-
-def fovfunc():
     from cheats.fov import startfov
-    fovL = [fov]
-    startfov(fovL)
-
-
+    nt2 = Thread(target=startfov, args=(fovL,), daemon = True) 
+    nt2.start()
 
 def glowfunc(): #the glow
     while True:
@@ -178,6 +170,7 @@ def glowfunc(): #the glow
         if keyboard.is_pressed(key):
             sleep(0.1)
             while True:
+                print(fovL[0])
                 try:
                     glow = pym.read_int(dwGlowObjectManager + client)
                     lp = pym.read_int(dwLocalPlayer + client)
@@ -253,7 +246,8 @@ def glowfunc(): #the glow
                     sleep(0.1)
                     break
 
-newthread()
 newthread2()
+newthread()
+
     
 sys.exit(app.exec_())
