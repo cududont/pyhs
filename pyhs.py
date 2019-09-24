@@ -11,13 +11,17 @@ import keyboard
 
 
 #offsets
-dwGlowObjectManager = (0x5248228)
-dwEntityList = (0x4D07DD4)
+dwGlowObjectManager = (0x524A330)
+dwEntityList = (0x4D09EF4)
 m_iTeamNum = (0xF4)
 m_iGlowIndex = (0xA40C)
-dwLocalPlayer = (0xCF5A4C)
+dwLocalPlayer = (0xCF7A3C)
 
 app = QApplication(sys.argv)
+
+fov = pickle.load(open("data//fov.dat", "rb"))
+fovL = [fov]
+fovL[0] = fov
    
 
 try: #hook to csgo
@@ -29,8 +33,7 @@ except:
     MessageBox(None, 'CS:GO Was Not Detected', 'pyhs', 48)
     exit()
     
-fov = pickle.load(open("data//fov.dat", "rb"))
-fovL = [fov]
+
 
 def apply(): #save color scheme and toggle key
     global key, cscheme, fov
