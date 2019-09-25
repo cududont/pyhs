@@ -6,23 +6,19 @@ import sys
 import pickle
 import pymem
 import pymem.process
-from time import sleep
-import keyboard
 
-
-#offsets
-dwGlowObjectManager = (0x524A330)
-dwEntityList = (0x4D09EF4)
-m_iTeamNum = (0xF4)
-m_iGlowIndex = (0xA40C)
-dwLocalPlayer = (0xCF7A3C)
 
 app = QApplication(sys.argv)
 
 fov = pickle.load(open("data//fov.dat", "rb"))
-fovL = [fov]
-fovL[0] = fov
-   
+key = pickle.load(open("data//togglekey.dat", "rb"))
+cscheme = pickle.load(open("data//colorscheme.dat", "rb"))
+
+mfv = [fov, key, cscheme]
+mfv[0] = fov
+mfv[1] = key
+mfv[2] = cscheme
+
 
 try: #hook to csgo
     pym = pymem.Pymem("csgo.exe")
@@ -44,8 +40,9 @@ def apply(): #save color scheme and toggle key
     pickle.dump(cscheme, open("data//colorscheme.dat", "wb"))
     fov = gui.slider.value()
     pickle.dump(fov, open("data//fov.dat", "wb"))
-    fovL[0] = fov 
-    print(fovL[0]) 
+    mfv[0] = fov
+    mfv[1] = key
+    mfv[2] = cscheme 
     
 
 class main(QMainWindow): #ui class
@@ -153,101 +150,18 @@ class main(QMainWindow): #ui class
 gui = main()
 gui.show()
 
-key = pickle.load(open("data//togglekey.dat", "rb"))
-cscheme = pickle.load(open("data//colorscheme.dat", "rb"))
-
 
 def newthread(): #create a new thread for glowfunc
-    nt = Thread(target=glowfunc)
-    nt.daemon = True
+    from cheats.glow import startglow
+    nt = Thread(target=startglow, args=(mfv,), daemon = True)
     nt.start()
+   
 
 def newthread2(): #thread for fov func
     from cheats.fov import startfov
-    nt2 = Thread(target=startfov, args=(fovL,), daemon = True) 
+    nt2 = Thread(target=startfov, args=(mfv,), daemon = True) 
     nt2.start()
 
-def glowfunc(): #the glow
-    while True:
-        sleep(0.001)
-        if keyboard.is_pressed(key):
-            sleep(0.1)
-            while True:
-                print(fovL[0])
-                try:
-                    glow = pym.read_int(dwGlowObjectManager + client)
-                    lp = pym.read_int(dwLocalPlayer + client)
-                    lpt = pym.read_int(lp + m_iTeamNum) #local player's team
-
-                    if lpt == 2: #t
-                        if cscheme == "Red & Blue":
-                            ctcolorr = 1
-                            ctcolorb = 0
-                            ctcolorg = 0
-                            tcolorr = 0
-                            tcolorb = 1
-                            tcolorg = 0
-
-                        else:
-
-                            ctcolorr = 1
-                            ctcolorb = 0
-                            ctcolorg = 0.4
-                            tcolorr = 0
-                            tcolorb = 0
-                            tcolorg = 1
-
-                    elif lpt == 3: #ct
-                        if cscheme == "Red & Blue":
-                            ctcolorr = 0
-                            ctcolorb = 1
-                            ctcolorg = 0
-                            tcolorr = 1
-                            tcolorb = 0
-                            tcolorg = 0
-
-                        else:
-                            
-                            ctcolorr = 0
-                            ctcolorb = 0
-                            ctcolorg = 1
-                            tcolorr = 1
-                            tcolorb = 0
-                            tcolorg = 0.4
-                       
-                    for i in range(1, 32):
-                        player = pym.read_int(client + dwEntityList + i * 0x10)
-
-                        if player:
-                            team = pym.read_int(player + m_iTeamNum)
-                            playerglow = pym.read_int(player + m_iGlowIndex)
-
-                            if team == 2: #t
-                                pym.write_float(glow + playerglow * 0x38 + 0x4, float(tcolorr)) #Red
-                                pym.write_float(glow + playerglow * 0x38 + 0xC, float(tcolorb)) #Blue
-                                pym.write_float(glow + playerglow * 0x38 + 0x8, float(tcolorg)) #Green
-                                pym.write_float(glow + playerglow * 0x38 + 0x10, float(1)) #Opacity
-                                pym.write_int(glow + playerglow * 0x38 + 0x24, int(1)) 
-                            
-                            elif team == 3: #ct
-                                pym.write_float(glow + playerglow * 0x38 + 0x4, float(ctcolorr)) #Red
-                                pym.write_float(glow + playerglow * 0x38 + 0xC, float(ctcolorb)) #Blue
-                                pym.write_float(glow + playerglow * 0x38 + 0x8, float(ctcolorg)) #Green
-                                pym.write_float(glow + playerglow * 0x38 + 0x10, float(1)) #Opacity
-                                pym.write_int(glow + playerglow * 0x38 + 0x24, int(1))      
-                    
-                                
-                except pymem.exception.MemoryReadError:
-                    ctcolorr = 0
-                    ctcolorb = 0
-                    ctcolorg = 0
-                    tcolorr = 0
-                    tcolorb = 0
-                    tcolorg = 0
-            
-                if keyboard.is_pressed(key):
-                    sleep(0.1)
-                    break
 
 newthread2()
 newthread()
