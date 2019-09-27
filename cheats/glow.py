@@ -1,13 +1,14 @@
 import pymem
 import pymem.process
 import keyboard
+from time import sleep
 
 #offsets
-dwGlowObjectManager = (0x5248228)
-dwEntityList = (0x4D07DD4)
+dwGlowObjectManager = (0x524A338)
+dwEntityList = (0x4D09F04)
 m_iTeamNum = (0xF4)
 m_iGlowIndex = (0xA40C)
-dwLocalPlayer = (0xCF5A4C)
+dwLocalPlayer = (0xCF7A4C)
 
 pym = pymem.Pymem("csgo.exe")
 client = pymem.process.module_from_name(pym.process_handle, "client_panorama.dll").lpBaseOfDll
