@@ -24,21 +24,14 @@ def startfov(fovL):
             wpnentity = pym.read_int(client + (wpnindex -1) * 0x10 + dwEntityList)
             wpnid = pym.read_int(wpnentity + m_iItemDefinitionIndex)
             
-            if wpnid == 9 or wpnid == 40:
-                scpd = pym.read_int(lp + m_bIsScoped)
-                if scpd == 0:
-                    pym.write_int(lp + m_iFOV, int(90))
+            if wpnid == 9 or wpnid == 40 or wpnid == 11 or wpnid == 38:
+                pass
 
-            elif wpnid == 11 or wpnid == 38:
-                scpd = pym.read_int(lp + m_bIsScoped)
-                if scpd == 0:
-                    pym.write_int(lp + m_iFOV, int(90))
-        
             else:
                 pym.write_int(lp + m_iFOV, int(fovSET))
                 
-        except Exception as e:
-            print(e)
+        except pymem.exception.MemoryReadError:
+            pass
 
 
 

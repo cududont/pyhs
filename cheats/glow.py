@@ -22,6 +22,7 @@ def startglow(mfv): #the glow
             sleep(0.1)
             while True:
                 try:
+                    sleep(0.001)
                     glow = pym.read_int(dwGlowObjectManager + client)
                     lp = pym.read_int(dwLocalPlayer + client)
                     lpt = pym.read_int(lp + m_iTeamNum) #local player's team
