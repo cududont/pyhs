@@ -20,7 +20,7 @@ def tb(mfv):
             sleep(0.1)
             while True:
                 try:
-                    sleep(0.01)
+                    sleep(0.001)
 
                     lp = pym.read_int(dwLocalPlayer + client)
                     chid = pym.read_int(lp + m_iCrosshairId)
