@@ -13,11 +13,13 @@ app = QApplication(sys.argv)
 fov = pickle.load(open("data//fov.dat", "rb"))
 key = pickle.load(open("data//togglekey.dat", "rb"))
 cscheme = pickle.load(open("data//colorscheme.dat", "rb"))
+tbkey = pickle.load(open("data//tbkey.dat", "rb"))
 
-mfv = [fov, key, cscheme]
+mfv = [fov, key, cscheme, tbkey]
 mfv[0] = fov
 mfv[1] = key
 mfv[2] = cscheme
+mfv[3] = tbkey
 
 
 try: #hook to csgo
@@ -31,7 +33,7 @@ except:
     
 
 
-def apply(): #save color scheme and toggle key
+def apply(): #set new params and dump them
     global key, cscheme, fov
     text = gui.line.text()
     pickle.dump(text, open("data//togglekey.dat", "wb"))
@@ -40,9 +42,12 @@ def apply(): #save color scheme and toggle key
     pickle.dump(cscheme, open("data//colorscheme.dat", "wb"))
     fov = gui.slider.value()
     pickle.dump(fov, open("data//fov.dat", "wb"))
+    tbkey = gui.line2.text()
+    pickle.dump(tbkey, open("data//tbkey.dat", "wb"))
     mfv[0] = fov
     mfv[1] = key
-    mfv[2] = cscheme 
+    mfv[2] = cscheme
+    mfv[3] = tbkey
     
 
 class main(QMainWindow): #ui class
@@ -55,13 +60,15 @@ class main(QMainWindow): #ui class
         tkey = pickle.load(open("data//togglekey.dat", "rb"))
         colorscheme = pickle.load(open("data//colorscheme.dat", "rb"))
         fovres = pickle.load(open("data//fov.dat", "rb"))
+        tbkeyd = pickle.load(open("data//tbkey.dat", "rb"))
         self.line.setText(tkey)
         self.ls.setCurrentText(colorscheme)
         self.slider.setValue(fovres)
+        self.line2.setText(tbkeyd)
         
     
-    def initUI(self):
-        self.setGeometry(0, 0, 210, 200)
+    def initUI(self): #init the ui
+        self.setGeometry(0, 0, 210, 250)
         self.setWindowTitle("pyhs")
         self.setWindowIcon(QIcon("assets//ico.png"))
 
@@ -102,11 +109,8 @@ class main(QMainWindow): #ui class
         self.slider.move(15,110)
         self.slider.setMaximum(150)
         self.slider.setMinimum(90)
-
-
         self.slider.resize(180,20)
         self.slider.setSingleStep(0)
-        
         
         v = QLabel("90°", self)
         v.move(15, 120)
@@ -120,31 +124,40 @@ class main(QMainWindow): #ui class
         v3.move(180, 120)
         v3.setFont(QFont("Calibri", 8))
 
-        #trg = QLabel("Triggerbot", self)
-        #trg.move(5, 140)
-        #trg.setFont(font)
+        trg = QLabel("Triggerbot", self)
+        trg.move(5, 140)
+        trg.setFont(font)
+
+        tbb = QLabel("Toggle Key: ", self)
+        tbb.move(5, 165)
+        tbb.setFont(QFont("Calibri", 11))
+
+        self.line2 = QLineEdit(self)
+        self.line2.resize(120, 21)
+        self.line2.move(83, 170)
+        self.line2.setFont(QFont("Calibri", 10))
 
         self.btn = QPushButton(self)
         self.btn.setText("Apply")
         self.btn.setFont(QFont("Calibri", 10))
         self.btn.resize(199, 30)
-        self.btn.move(5, 150)
+        self.btn.move(5, 200)
         self.btn.clicked.connect(apply)
 
         dev = QLabel(self)
         dev.setText("Developed by cududont")
         dev.setFont(QFont("Calibri", 10))
         dev.resize(130, 30)
-        dev.move(5, 175)
+        dev.move(5, 225)
 
         
-    def paintEvent(self, event):
+    def paintEvent(self, event): #draw lines to to seperate ui
         painter = QPainter(self)
         painter.setPen(QPen(QColor(80, 80, 80), 3))
         
         painter.drawLine(45,16,200,16)
         painter.drawLine(93,97,200,97)
-        #painter.drawLine(75,156,200,156)
+        painter.drawLine(75,156,200,156)
         
 
 gui = main()
@@ -162,9 +175,13 @@ def newthread2(): #thread for fov func
     nt2 = Thread(target=startfov, args=(mfv,), daemon = True) 
     nt2.start()
 
+def newthread3(): #thread for triggerbot
+    from cheats.triggerbot import tb
+    nt3 = Thread(target=tb, args=(mfv,), daemon = True) 
+    nt3.start()
 
-newthread2()
 newthread()
+newthread2()
+newthread3()
 
-    
 sys.exit(app.exec_())

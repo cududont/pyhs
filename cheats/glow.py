@@ -18,6 +18,7 @@ def startglow(mfv): #the glow
     while True:
         key = mfv[1]
         cscheme = mfv[2]
+        sleep(0.001)
         if keyboard.is_pressed(key):
             sleep(0.1)
             while True:
@@ -94,6 +95,6 @@ def startglow(mfv): #the glow
                     tcolorg = 0
             
                 if keyboard.is_pressed(key):
-                    sleep(0.1)
+                    sleep(0.2)
                     break
 
