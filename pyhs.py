@@ -1,5 +1,5 @@
 from PyQt5.QtGui import QFont, QIcon, QColor, QPainter, QPen
-from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QApplication, QPushButton, QMainWindow, QComboBox, QSlider
+from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QApplication, QPushButton, QMainWindow, QComboBox, QSlider, QCheckBox
 from PyQt5.QtCore import QRect, Qt
 from threading import Thread
 import sys
@@ -14,12 +14,14 @@ fov = pickle.load(open("data//fov.dat", "rb"))
 key = pickle.load(open("data//togglekey.dat", "rb"))
 cscheme = pickle.load(open("data//colorscheme.dat", "rb"))
 tbkey = pickle.load(open("data//tbkey.dat", "rb"))
+enbh = pickle.load(open("data//enbh.dat", "rb"))
 
-mfv = [fov, key, cscheme, tbkey]
+mfv = [fov, key, cscheme, tbkey, enbh]
 mfv[0] = fov
 mfv[1] = key
 mfv[2] = cscheme
 mfv[3] = tbkey
+mfv[4] = enbh
 
 
 try: #hook to csgo
@@ -34,7 +36,6 @@ except:
 
 
 def apply(): #set new params and dump them
-    global key, cscheme, fov
     text = gui.line.text()
     pickle.dump(text, open("data//togglekey.dat", "wb"))
     key = text
@@ -44,10 +45,20 @@ def apply(): #set new params and dump them
     pickle.dump(fov, open("data//fov.dat", "wb"))
     tbkey = gui.line2.text()
     pickle.dump(tbkey, open("data//tbkey.dat", "wb"))
+
+    if gui.ebbh.isChecked() == True:
+        enbh = True
+    else:
+        enbh = False
+
+    pickle.dump(enbh, open("data//enbh.dat", "wb"))
+    print(enbh)
+
     mfv[0] = fov
     mfv[1] = key
     mfv[2] = cscheme
     mfv[3] = tbkey
+    mfv[4] = enbh
     
 
 class main(QMainWindow): #ui class
@@ -61,16 +72,23 @@ class main(QMainWindow): #ui class
         colorscheme = pickle.load(open("data//colorscheme.dat", "rb"))
         fovres = pickle.load(open("data//fov.dat", "rb"))
         tbkeyd = pickle.load(open("data//tbkey.dat", "rb"))
+        enbhd = pickle.load(open("data//enbh.dat", "rb"))
+
         self.line.setText(tkey)
         self.ls.setCurrentText(colorscheme)
         self.slider.setValue(fovres)
         self.line2.setText(tbkeyd)
+
+        if enbhd == True:
+            self.ebbh.setChecked(True)
+        else:
+            self.ebbh.setChecked(False)
+
         
     
     def initUI(self): #init the ui
-        self.setGeometry(0, 0, 210, 250)
+        self.setGeometry(0, 0, 210, 310)
         self.setWindowTitle("pyhs")
-        self.setFixedSize(210, 250)
         self.setWindowIcon(QIcon("assets//ico.png"))
 
         font = QFont("Calibri", 11)
@@ -130,26 +148,34 @@ class main(QMainWindow): #ui class
         trg.setFont(font)
 
         tbb = QLabel("Toggle Key: ", self)
-        tbb.move(5, 165)
+        tbb.move(5, 170)
         tbb.setFont(QFont("Calibri", 11))
 
         self.line2 = QLineEdit(self)
         self.line2.resize(120, 21)
-        self.line2.move(83, 170)
+        self.line2.move(83, 175)
         self.line2.setFont(QFont("Calibri", 10))
 
+        ebt = QLabel("Bhop", self)
+        ebt.move(5, 200)
+        ebt.setFont(font)
+
+        self.ebbh = QCheckBox("Enable Bhop", self)
+        self.ebbh.move(10, 225)
+        self.ebbh.setFont(QFont("Calibri", 11))
+        
         self.btn = QPushButton(self)
         self.btn.setText("Apply")
         self.btn.setFont(QFont("Calibri", 10))
         self.btn.resize(199, 30)
-        self.btn.move(5, 200)
+        self.btn.move(5, 260)
         self.btn.clicked.connect(apply)
 
         dev = QLabel(self)
         dev.setText("Developed by cududont")
         dev.setFont(QFont("Calibri", 10))
         dev.resize(130, 30)
-        dev.move(5, 225)
+        dev.move(5, 285)
 
         
     def paintEvent(self, event): #draw lines to to seperate ui
@@ -159,6 +185,7 @@ class main(QMainWindow): #ui class
         painter.drawLine(45,16,200,16)
         painter.drawLine(93,97,200,97)
         painter.drawLine(75,156,200,156)
+        painter.drawLine(45,215,200,215)
         
 
 gui = main()
@@ -181,8 +208,15 @@ def newthread3(): #thread for triggerbot
     nt3 = Thread(target=tb, args=(mfv,), daemon = True) 
     nt3.start()
 
+def newthread4(): #thread for triggerbot
+    from cheats.bhop import bh
+    nt4 = Thread(target=bh, args=(mfv,), daemon = True) 
+    nt4.start()
+
 newthread()
 newthread2()
 newthread3()
+newthread4()
+
 
 sys.exit(app.exec_())
