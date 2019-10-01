@@ -69,7 +69,7 @@ class main(QMainWindow): #ui class
     
     def initUI(self): #init the ui
         self.setGeometry(0, 0, 210, 250)
-        self.setWindowTitle(u"\u2063")
+        self.setWindowTitle("pyhs")
         self.setFixedSize(210, 250)
         self.setWindowIcon(QIcon("assets//ico.png"))
 
