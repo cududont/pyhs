@@ -6,9 +6,9 @@ from time import sleep
 pym = pymem.Pymem("csgo.exe")
 client = pymem.process.module_from_name(pym.process_handle, "client_panorama.dll").lpBaseOfDll
 
-dwLocalPlayer = (0xCF7A4C)
+dwLocalPlayer = (0xCF6A4C)
 m_hActiveWeapon = (0x2EF8)
-dwEntityList = (0x4D09F04)
+dwEntityList = (0x4D08EF4)
 m_iItemDefinitionIndex = (0x2FAA)
 m_iFOV = (0x31E4)
 m_bIsScoped = (0x3910)
