@@ -10,6 +10,7 @@ import pymem.process
 
 app = QApplication(sys.argv)
 
+
 fov = pickle.load(open("data//fov.dat", "rb"))
 key = pickle.load(open("data//togglekey.dat", "rb"))
 cscheme = pickle.load(open("data//colorscheme.dat", "rb"))
