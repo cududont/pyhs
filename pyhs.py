@@ -16,13 +16,17 @@ key = pickle.load(open("data//togglekey.dat", "rb"))
 cscheme = pickle.load(open("data//colorscheme.dat", "rb"))
 tbkey = pickle.load(open("data//tbkey.dat", "rb"))
 enbh = pickle.load(open("data//enbh.dat", "rb"))
+#enan = pickle.load(open("data//enan.dat", "rb"))
 
-mfv = [fov, key, cscheme, tbkey, enbh]
+enan = True
+
+mfv = [fov, key, cscheme, tbkey, enbh, enan]
 mfv[0] = fov
 mfv[1] = key
 mfv[2] = cscheme
 mfv[3] = tbkey
 mfv[4] = enbh
+mfv[5] = enan
 
 
 try: #hook to csgo

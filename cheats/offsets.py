@@ -11,4 +11,4 @@ m_iFOV = (0x31E4)
 m_bIsScoped = (0x3910)
 dwForceAttack = (0x313A5B0)
 m_iCrosshairId = (0xB3AC)
-
+m_flFlashDuration = (0xA3F4)
