@@ -7,27 +7,16 @@ import pickle
 import pymem
 import pymem.process
 
-
 app = QApplication(sys.argv)
-
 
 fov = pickle.load(open("data//fov.dat", "rb"))
 key = pickle.load(open("data//togglekey.dat", "rb"))
 cscheme = pickle.load(open("data//colorscheme.dat", "rb"))
 tbkey = pickle.load(open("data//tbkey.dat", "rb"))
 enbh = pickle.load(open("data//enbh.dat", "rb"))
-#enan = pickle.load(open("data//enan.dat", "rb"))
-
-enan = True
+enan = pickle.load(open("data//enan.dat", "rb"))
 
 mfv = [fov, key, cscheme, tbkey, enbh, enan]
-mfv[0] = fov
-mfv[1] = key
-mfv[2] = cscheme
-mfv[3] = tbkey
-mfv[4] = enbh
-mfv[5] = enan
-
 
 try: #hook to csgo
     pym = pymem.Pymem("csgo.exe")
@@ -41,29 +30,35 @@ except:
 
 
 def apply(): #set new params and dump them
-    text = gui.line.text()
-    pickle.dump(text, open("data//togglekey.dat", "wb"))
-    key = text
     cscheme = gui.ls.currentText()
-    pickle.dump(cscheme, open("data//colorscheme.dat", "wb"))
+    key = gui.line.text()
     fov = gui.slider.value()
-    pickle.dump(fov, open("data//fov.dat", "wb"))
     tbkey = gui.line2.text()
-    pickle.dump(tbkey, open("data//tbkey.dat", "wb"))
 
+    pickle.dump(key, open("data//togglekey.dat", "wb"))
+    pickle.dump(tbkey, open("data//tbkey.dat", "wb"))
+    pickle.dump(fov, open("data//fov.dat", "wb"))
+    pickle.dump(cscheme, open("data//colorscheme.dat", "wb"))
+    
+    if gui.eba.isChecked() == True:
+        enan = True
+    else:
+        enan = False
+    
     if gui.ebbh.isChecked() == True:
         enbh = True
     else:
         enbh = False
 
     pickle.dump(enbh, open("data//enbh.dat", "wb"))
-    print(enbh)
+    pickle.dump(enan, open("data//enan.dat", "wb"))
 
     mfv[0] = fov
     mfv[1] = key
     mfv[2] = cscheme
     mfv[3] = tbkey
     mfv[4] = enbh
+    mfv[5] = enan
     
 
 class main(QMainWindow): #ui class
@@ -78,6 +73,7 @@ class main(QMainWindow): #ui class
         fovres = pickle.load(open("data//fov.dat", "rb"))
         tbkeyd = pickle.load(open("data//tbkey.dat", "rb"))
         enbhd = pickle.load(open("data//enbh.dat", "rb"))
+        enand = pickle.load(open("data//enan.dat", "rb"))
 
         self.line.setText(tkey)
         self.ls.setCurrentText(colorscheme)
@@ -88,11 +84,15 @@ class main(QMainWindow): #ui class
             self.ebbh.setChecked(True)
         else:
             self.ebbh.setChecked(False)
-
+        
+        if enand == True:
+            self.eba.setChecked(True)
+        else:
+            self.eba.setChecked(False)
         
     
     def initUI(self): #init the ui
-        self.setGeometry(0, 0, 210, 310)
+        self.setGeometry(0, 0, 210, 360)
         self.setWindowTitle("pyhs")
         self.setWindowIcon(QIcon("assets//ico.png"))
 
@@ -165,6 +165,15 @@ class main(QMainWindow): #ui class
         ebt.move(5, 200)
         ebt.setFont(font)
 
+        amt = QLabel("Anti-Flash", self)
+        amt.move(5, 250)
+        amt.setFont(font)
+
+        self.eba = QCheckBox("Enable Anti-Flash", self)
+        self.eba.move(10, 283)
+        self.eba.resize(200, 14)
+        self.eba.setFont(QFont("Calibri", 11))
+        
         self.ebbh = QCheckBox("Enable Bhop", self)
         self.ebbh.move(10, 225)
         self.ebbh.setFont(QFont("Calibri", 11))
@@ -173,14 +182,14 @@ class main(QMainWindow): #ui class
         self.btn.setText("Apply")
         self.btn.setFont(QFont("Calibri", 10))
         self.btn.resize(199, 30)
-        self.btn.move(5, 260)
+        self.btn.move(5, 310)
         self.btn.clicked.connect(apply)
 
         dev = QLabel(self)
         dev.setText("Developed by cududont")
         dev.setFont(QFont("Calibri", 10))
         dev.resize(130, 30)
-        dev.move(5, 285)
+        dev.move(5, 335)
 
         
     def paintEvent(self, event): #draw lines to to seperate ui
@@ -191,37 +200,27 @@ class main(QMainWindow): #ui class
         painter.drawLine(93,97,200,97)
         painter.drawLine(75,156,200,156)
         painter.drawLine(45,215,200,215)
+        painter.drawLine(75,265,200,265)
         
 
 gui = main()
 gui.show()
 
 
-def newthread(): #create a new thread for glowfunc
+def threader(): #create a new thread for glowfunc
     from cheats.glow import startglow
-    nt = Thread(target=startglow, args=(mfv,), daemon = True)
-    nt.start()
+    from cheats.fov import startfov
+    from cheats.triggerbot import tb
+    from cheats.bhop import bh
+    from cheats.antiflash import antif
+
+    nt = Thread(target=startglow, args=(mfv,), daemon = True).start()
+    nt2 = Thread(target=startfov, args=(mfv,), daemon = True).start()
+    nt3 = Thread(target=tb, args=(mfv,), daemon = True).start()
+    nt4 = Thread(target=bh, args=(mfv,), daemon = True).start() 
+    nt5 = Thread(target=antif, args=(mfv,), daemon = True).start()
    
 
-def newthread2(): #thread for fov func
-    from cheats.fov import startfov
-    nt2 = Thread(target=startfov, args=(mfv,), daemon = True) 
-    nt2.start()
-
-def newthread3(): #thread for triggerbot
-    from cheats.triggerbot import tb
-    nt3 = Thread(target=tb, args=(mfv,), daemon = True) 
-    nt3.start()
-
-def newthread4(): #thread for triggerbot
-    from cheats.bhop import bh
-    nt4 = Thread(target=bh, args=(mfv,), daemon = True) 
-    nt4.start()
-
-newthread()
-newthread2()
-newthread3()
-newthread4()
-
+threader()
 
 sys.exit(app.exec_())

@@ -8,9 +8,9 @@ client = pymem.process.module_from_name(pym.process_handle, "client_panorama.dll
 
 def antif(mfv):
     while True:
-        sleep(0.03)
+        sleep(0.01)
         enan = mfv[5]
-        if enan = True:  
+        if enan == True:  
             try:
                 lp = pym.read_int(client + dwLocalPlayer)
                 flashdur = pym.read_int(lp + m_flFlashDuration)
@@ -20,8 +20,8 @@ def antif(mfv):
                 else:
                     pass
 
-                sleep(0.03)
-
             except:
                 pass
-     
+        else:
+            sleep(0.1)
+
